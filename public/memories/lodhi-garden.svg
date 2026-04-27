@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Warm illustrated garden">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffe4e6"/>
+      <stop offset="0.55" stop-color="#fed7aa"/>
+      <stop offset="1" stop-color="#bbf7d0"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="28%" cy="24%" r="28%">
+      <stop offset="0" stop-color="#fff7ad"/>
+      <stop offset="1" stop-color="#fff7ad" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <rect width="1200" height="800" fill="url(#sun)"/>
+  <path d="M0 590c190-95 346-98 520-19 208 94 379 82 680-53v282H0z" fill="#15803d" opacity=".8"/>
+  <path d="M0 660c217-66 420-65 607 1 185 65 373 61 593-28v167H0z" fill="#14532d" opacity=".78"/>
+  <path d="M450 430h300l-36 146H486z" fill="#7f1d1d" opacity=".75"/>
+  <path d="M500 360h200l64 70H436z" fill="#9f1239"/>
+  <circle cx="370" cy="500" r="86" fill="#166534"/>
+  <circle cx="828" cy="492" r="96" fill="#166534"/>
+  <path d="M570 528c35-45 70-45 105 0" fill="none" stroke="#fff7ed" stroke-width="18" stroke-linecap="round"/>
+</svg>

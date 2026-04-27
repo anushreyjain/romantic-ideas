@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Sunset walk illustration">
+  <defs>
+    <linearGradient id="sunset" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fb7185"/>
+      <stop offset="0.48" stop-color="#fdba74"/>
+      <stop offset="1" stop-color="#312e81"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sunset)"/>
+  <circle cx="600" cy="360" r="150" fill="#fde68a" opacity=".9"/>
+  <path d="M0 570c163-42 324-44 483-4 209 53 441 50 717-8v242H0z" fill="#312e81" opacity=".82"/>
+  <path d="M350 612c130-72 370-72 500 0" fill="none" stroke="#fff7ed" stroke-width="16" stroke-linecap="round" opacity=".7"/>
+  <circle cx="505" cy="500" r="32" fill="#1f2937"/>
+  <circle cx="695" cy="500" r="32" fill="#1f2937"/>
+  <path d="M505 536v116M695 536v116M548 584c36 32 68 32 104 0" fill="none" stroke="#1f2937" stroke-width="20" stroke-linecap="round"/>
+  <path d="M587 470c0-38 52-42 52 0 0-42 58-38 58 4 0 54-58 84-58 84s-52-30-52-88z" fill="#fff7ed" opacity=".92"/>
+</svg>
