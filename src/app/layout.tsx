@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 
@@ -18,18 +18,25 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  style: ["normal", "italic"],
+});
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const theme = cookieStore.get("rt-theme")?.value === "light" ? "light" : undefined;
+  const theme = cookieStore.get("rt-theme")?.value === "dark" ? "dark" : undefined;
 
   return (
     <html lang="en" data-theme={theme} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable}`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable}`}
         suppressHydrationWarning
       >
         {children}

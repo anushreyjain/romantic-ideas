@@ -13,36 +13,32 @@ function readStoredTheme(): Theme {
     const v = localStorage.getItem(STORAGE_KEY);
     if (v === "light" || v === "dark") return v;
   } catch { /* ignore */ }
-  return "dark";
+  return "light";
 }
 
 function persistTheme(theme: Theme) {
-  // localStorage for quick client reads
   try { localStorage.setItem(STORAGE_KEY, theme); } catch { /* ignore */ }
-  // Cookie so the server can read it on next request and render the right theme
-  const maxAge = 60 * 60 * 24 * 365; // 1 year
+  const maxAge = 60 * 60 * 24 * 365;
   document.cookie = `${COOKIE_NAME}=${theme}; path=/; max-age=${maxAge}; SameSite=Lax`;
 }
 
 export function useTheme() {
-  // Always start as "dark" to match SSR default — corrected before first paint
-  const [theme, setThemeState] = useState<Theme>("dark");
+  // Always start as "light" to match SSR default — corrected before first paint
+  const [theme, setThemeState] = useState<Theme>("light");
   const userToggled = useRef(false);
 
-  // On mount: read stored preference and ensure the cookie is always in sync
-  // so the server can read the correct theme on every future request.
   useLayoutEffect(() => {
     const stored = readStoredTheme();
-    persistTheme(stored); // write cookie even if user never explicitly toggled
-    if (stored !== "dark") {
+    persistTheme(stored);
+    if (stored !== "light") {
       queueMicrotask(() => setThemeState(stored));
     }
   }, []);
 
   // Apply DOM changes whenever theme changes
   useLayoutEffect(() => {
-    if (theme === "light") {
-      document.documentElement.setAttribute("data-theme", "light");
+    if (theme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
     } else {
       document.documentElement.removeAttribute("data-theme");
     }

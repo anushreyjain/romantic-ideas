@@ -1,35 +1,35 @@
 @import "tailwindcss";
 
-/* ── Theme tokens — dark (default) ────────────────────────── */
+/* ── Theme tokens — light (default) ───────────────────────── */
 :root {
-  color-scheme: dark;
-
-  --bg:      #1A1418;
-  --surface: #251C22;
-  --surface2:#2E2229;
-  --accent:  #F4C0D1;
-  --cta:     #ED93B1;
-  --pin:     #ED93B1;   /* map pin — same as cta in dark mode */
-  --heading: #FBEAF0;
-  --body:    #D3C8CD;
-  --border:  rgba(244,192,209,.14);
-  --border-strong: rgba(244,192,209,.28);
-}
-
-/* ── Theme tokens — light ──────────────────────────────────── */
-[data-theme="light"] {
   color-scheme: light;
 
-  --bg:      #FDF5F8;
-  --surface: #FFFFFF;
-  --surface2:#F5F0FA;
-  --accent:  #9B6BB5;
-  --cta:     #6B2F7A;
-  --pin:     #8B45A8;   /* medium-dark purple tint for the map pin */
-  --heading: #1A0D24;
-  --body:    #452860;
-  --border:  rgba(107,47,122,.14);
-  --border-strong: rgba(107,47,122,.30);
+  --bg:           #F7F3EF;
+  --surface:      #FFFFFF;
+  --surface2:     #F0E8E4;
+  --accent:       #E8A9A9;
+  --cta:          #D96C6C;
+  --pin:          #D96C6C;
+  --heading:      #2E2E2E;
+  --body:         #5A4848;
+  --border:       rgba(217,108,108,.16);
+  --border-strong:rgba(217,108,108,.32);
+}
+
+/* ── Theme tokens — dark ───────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:           #130D0D;
+  --surface:      #231414;
+  --surface2:     #2E1A1A;
+  --accent:       #E8A9A9;
+  --cta:          #D96C6C;
+  --pin:          #D96C6C;
+  --heading:      #F7F3EF;
+  --body:         #C4AEAE;
+  --border:       rgba(217,108,108,.16);
+  --border-strong:rgba(217,108,108,.32);
 }
 
 /* ── Base ──────────────────────────────────────────────────── */
@@ -44,6 +44,10 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-playfair), Georgia, serif;
 }
 
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -250,7 +254,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 input, select, textarea { font-family: inherit; font-size: 0.875rem; }
 
 select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23D3C8CD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A4848' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.6rem center;
   background-size: 0.75rem;
@@ -260,7 +264,7 @@ select {
   cursor: pointer;
 }
 
-[data-theme="light"] select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23452860' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+[data-theme="dark"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23C4AEAE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
