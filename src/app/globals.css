@@ -165,11 +165,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   position: relative;
   display: flex;
   width: 56px;
-  height: 74px;
+  height: 56px;
   align-items: center;
   justify-content: center;
   cursor: grab;
-  transform: translate(-50%, -100%);
 }
 
 .memory-pick-marker:active {

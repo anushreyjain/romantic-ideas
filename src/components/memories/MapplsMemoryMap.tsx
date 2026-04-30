@@ -14,6 +14,7 @@ export type MapplsSuggestion = {
   latitude?: string | number;
   longitude?: string | number;
   type?: string;
+  source?: "mappls" | "serpapi";
 };
 
 export type MapplsPlaceDetail = {
@@ -27,6 +28,8 @@ type Coordinates = {
   longitude: number;
   latitude: number;
 };
+
+type LngLatBounds = [[number, number], [number, number]];
 
 export type PickedMapplsLocation = {
   coordinates: Coordinates;
@@ -54,6 +57,7 @@ type MapplsMap = {
   remove?: () => void;
   flyTo?: (options: Record<string, unknown>) => void;
   easeTo?: (options: Record<string, unknown>) => void;
+  fitBounds?: (bounds: LngLatBounds, options?: Record<string, unknown>) => void;
   panTo?: (center: [number, number] | LatLng, options?: Record<string, unknown>) => void;
   setCenter?: (center: [number, number] | LatLng) => void;
   setZoom?: (zoom: number, options?: Record<string, unknown>) => void;
@@ -95,6 +99,7 @@ type MapplsMemoryMapProps = {
   memories: Memory[];
   activeMemoryId?: string;
   focusMemory?: Memory;
+  resetViewKey?: number;
   /**
    * When true the map is in location-picking mode.
    * A draggable pin is shown at `pickedPinPosition` (if set).
@@ -127,6 +132,8 @@ type MapplsMemoryMapProps = {
 const DEFAULT_CENTER: Coordinates = { latitude: 28.6139, longitude: 77.209 };
 const MEMORY_MARKER_ICON = "https://apis.mappls.com/map_v3/1.png";
 const MEMORY_MARKER_SIZE = 44;
+const PICKING_MARKER_WIDTH = 56;
+const PICKING_MARKER_ANCHOR_HEIGHT = 56;
 
 // ── Script loader (module-level cache) ────────────────────────
 
@@ -343,12 +350,65 @@ function focusMap(map: MapplsMap, coords: Coordinates, zoom = 18) {
   map.setZoom?.(zoom);
 }
 
+function zoomForBounds(bounds: LngLatBounds) {
+  const [[west, south], [east, north]] = bounds;
+  const span = Math.max(Math.abs(east - west), Math.abs(north - south));
+
+  if (span > 10) return 5;
+  if (span > 3) return 7;
+  if (span > 1) return 9;
+  if (span > 0.25) return 11;
+  if (span > 0.05) return 13;
+  return 15;
+}
+
+function showAllMemories(map: MapplsMap, memories: Memory[]) {
+  if (memories.length === 0) {
+    focusMap(map, DEFAULT_CENTER, 5);
+    return;
+  }
+
+  if (memories.length === 1) {
+    focusMap(map, memories[0].coordinates, 12);
+    return;
+  }
+
+  const lngs = memories.map((memory) => memory.coordinates.longitude);
+  const lats = memories.map((memory) => memory.coordinates.latitude);
+  const bounds: LngLatBounds = [
+    [Math.min(...lngs), Math.min(...lats)],
+    [Math.max(...lngs), Math.max(...lats)],
+  ];
+
+  if (map.fitBounds) {
+    try {
+      map.fitBounds(bounds, {
+        padding: 80,
+        duration: 1200,
+      });
+      return;
+    } catch {
+      // Fall back to a center/zoom approximation for SDK variants.
+    }
+  }
+
+  focusMap(
+    map,
+    {
+      longitude: (bounds[0][0] + bounds[1][0]) / 2,
+      latitude: (bounds[0][1] + bounds[1][1]) / 2,
+    },
+    zoomForBounds(bounds),
+  );
+}
+
 // ── Component ──────────────────────────────────────────────────
 
 export function MapplsMemoryMap({
   memories,
   activeMemoryId,
   focusMemory,
+  resetViewKey,
   isPickingLocation,
   pickedPinPosition,
   pickedPinFocusKey,
@@ -496,6 +556,12 @@ export function MapplsMemoryMap({
     focusMap(mapRef.current, focusMemory.coordinates);
   }, [focusMemory, isMapReady]);
 
+  // ── 3b. Reset to the overview state when requested from the sidebar ──
+  useEffect(() => {
+    if (!resetViewKey || !mapRef.current || !isMapReady) return;
+    showAllMemories(mapRef.current, memories);
+  }, [isMapReady, memories, resetViewKey]);
+
   // ── 4. Map-click handler (only active while picking) ──────────
   useEffect(() => {
     const map = mapRef.current;
@@ -606,14 +672,16 @@ export function MapplsMemoryMap({
       return;
     }
 
-    // Create a new draggable picking marker with a pointed tip at the exact coordinate.
+    // Mappls anchors custom markers from the bottom-center of their marker box.
+    // Keep the box height ending at the visual tip so the pin stays on the same
+    // ground point at every zoom level.
     const marker = new mappls.Marker({
       map,
       position: { lat, lng },
       draggable: true,
       html: pickingMarkerHtml(),
-      width: 56,
-      height: 74,
+      width: PICKING_MARKER_WIDTH,
+      height: PICKING_MARKER_ANCHOR_HEIGHT,
     });
 
     marker.addListener?.("dragend", () => {

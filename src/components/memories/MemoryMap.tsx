@@ -24,6 +24,7 @@ export function MemoryMap() {
   // ── Map selection state ───────────────────────────────────────
   const [activeMemoryId, setActiveMemoryId] = useState<string>();
   const [focusMemory, setFocusMemory] = useState<Memory>();
+  const [resetViewKey, setResetViewKey] = useState(0);
   const [modalMemory, setModalMemory] = useState<Memory>();
 
   // ── Location picking state ────────────────────────────────────
@@ -40,6 +41,7 @@ export function MemoryMap() {
    * Starts from searchedLocation; updated on drag or map-click.
    */
   const [pickedPin, setPickedPin] = useState<PickedPin | null>(null);
+  const [pickedPinFocusKey, setPickedPinFocusKey] = useState<string>();
 
   /**
    * Set when user confirms the picked pin.
@@ -75,14 +77,19 @@ export function MemoryMap() {
     setSearchedLocation(loc);
     if (Number.isFinite(loc.lat) && Number.isFinite(loc.lng)) {
       setPickedPin({ lat: loc.lat!, lng: loc.lng! });
+      setPickedPinFocusKey(
+        loc.eLoc ?? `${loc.locationName}:${loc.lat}:${loc.lng}`,
+      );
     } else {
       setPickedPin(null);
+      setPickedPinFocusKey(undefined);
     }
   }, []);
 
   /** Called when user drags the pin on the map. */
   const handlePinDragged = useCallback((pos: PickedPin) => {
     setPickedPin(pos);
+    setPickedPinFocusKey(undefined);
   }, []);
 
   /**
@@ -91,6 +98,7 @@ export function MemoryMap() {
    */
   const handleMapClick = useCallback((pos: PickedPin) => {
     setPickedPin(pos);
+    setPickedPinFocusKey(undefined);
     // If no name yet (manual drop), give it a default
     setSearchedLocation((prev) =>
       prev
@@ -119,18 +127,33 @@ export function MemoryMap() {
     setIsPickingLocation(false);
     setSearchedLocation(null);
     setPickedPin(null);
+    setPickedPinFocusKey(undefined);
   }, [pickedPin, searchedLocation]);
 
   const cancelPicking = useCallback(() => {
     setIsPickingLocation(false);
     setSearchedLocation(null);
     setPickedPin(null);
+    setPickedPinFocusKey(undefined);
   }, []);
 
   const startAddPin = useCallback(() => {
     setIsPickingLocation(true);
     setSearchedLocation(null);
     setPickedPin(null);
+    setPickedPinFocusKey(undefined);
+  }, []);
+
+  const resetMapView = useCallback(() => {
+    setActiveMemoryId(undefined);
+    setFocusMemory(undefined);
+    setModalMemory(undefined);
+    setIsPickingLocation(false);
+    setSearchedLocation(null);
+    setPickedPin(null);
+    setPickedPinFocusKey(undefined);
+    setPendingLocation(null);
+    setResetViewKey((key) => key + 1);
   }, []);
 
   // ── CRUD ──────────────────────────────────────────────────────
@@ -165,6 +188,7 @@ export function MemoryMap() {
           isLoading={isLoading}
           selectedMemoryId={activeMemoryId}
           onSelectMemory={focusMemoryOnly}
+          onResetView={resetMapView}
           onStartAddPin={startAddPin}
         />
       </div>
@@ -186,13 +210,10 @@ export function MemoryMap() {
             memories={memories}
             activeMemoryId={activeMemoryId}
             focusMemory={focusMemory}
+            resetViewKey={resetViewKey}
             isPickingLocation={isPickingLocation}
             pickedPinPosition={pickedPin}
-            pickedPinFocusKey={
-              isPickingLocation
-                ? searchedLocation?.eLoc ?? searchedLocation?.locationName
-                : undefined
-            }
+            pickedPinFocusKey={isPickingLocation ? pickedPinFocusKey : undefined}
             mapplsPinToResolve={
               isPickingLocation && !pickedPin ? searchedLocation?.eLoc : undefined
             }
@@ -236,6 +257,7 @@ export function MemoryMap() {
             isLoading={isLoading}
             selectedMemoryId={activeMemoryId}
             onSelectMemory={focusMemoryOnly}
+            onResetView={resetMapView}
             onStartAddPin={startAddPin}
           />
         </div>

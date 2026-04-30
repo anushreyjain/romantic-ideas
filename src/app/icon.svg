@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rose" x1="256" y1="120" x2="256" y2="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F0AABF"/>
+      <stop offset="100%" stop-color="#C45A7F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="110" fill="#120D11"/>
+
+  <!-- Outer heart -->
+  <path d="M256,368 C256,368 130,288 130,200 C130,162 158,136 194,136 C218,136 240,150 256,172 C272,150 294,136 318,136 C354,136 382,162 382,200 C382,288 256,368 256,368 Z"
+        stroke="url(#rose)" stroke-width="11" fill="none" stroke-linejoin="round"/>
+
+  <!-- Middle heart -->
+  <path d="M256,330 C256,330 166,272 166,210 C166,182 186,163 210,163 C228,163 244,173 256,191 C268,173 284,163 302,163 C326,163 346,182 346,210 C346,272 256,330 256,330 Z"
+        stroke="url(#rose)" stroke-width="8" fill="none" stroke-linejoin="round" opacity="0.55"/>
+
+  <!-- Inner heart -->
+  <path d="M256,294 C256,294 202,256 202,220 C202,202 215,190 230,190 C240,190 250,196 256,207 C262,196 272,190 282,190 C297,190 310,202 310,220 C310,256 256,294 256,294 Z"
+        stroke="url(#rose)" stroke-width="6" fill="none" stroke-linejoin="round" opacity="0.28"/>
+</svg>

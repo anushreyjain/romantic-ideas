@@ -1,4 +1,4 @@
--- ── Romantic Timeline — Supabase Setup ─────────────────────
+-- ── HeartPrint — Supabase Setup ─────────────────────
 -- Run this entire file in:
 --   Supabase Dashboard → SQL Editor → New query → Paste → Run
 -- ────────────────────────────────────────────────────────────

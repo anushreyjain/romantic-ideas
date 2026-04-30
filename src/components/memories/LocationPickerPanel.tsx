@@ -44,7 +44,7 @@ async function sdkSearch(query: string): Promise<MapplsSuggestion[]> {
   const data = await mapplsRequest<{
     suggestedLocations?: MapplsSuggestion[];
     userAddedLocations?: MapplsSuggestion[];
-  }>(`/api/mappls/search?q=${encodeURIComponent(query)}`);
+  }>(`/api/location-search?q=${encodeURIComponent(query)}`);
 
   return [
     ...(data.suggestedLocations ?? []),

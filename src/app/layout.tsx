@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Romantic Timeline",
+  title: "HeartPrint",
   description: "A private map of shared romantic memories.",
 };
 
