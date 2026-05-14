@@ -52,6 +52,29 @@ h1, h2, h3 {
 
 button, a { -webkit-tap-highlight-color: transparent; }
 
+button,
+a,
+[role="button"],
+summary,
+label[for],
+select,
+input[type="button"],
+input[type="checkbox"],
+input[type="file"],
+input[type="radio"],
+input[type="reset"],
+input[type="submit"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"],
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
 /* ── Map memory markers ───────────────────────────────────── */
 .memory-map-marker {
   position: relative;
