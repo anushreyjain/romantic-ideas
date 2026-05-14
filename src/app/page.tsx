@@ -58,7 +58,7 @@ export default function Home() {
               onClick={() => setIsWhyModalOpen(true)}
               className="inline-flex items-center justify-center rounded-full border border-(--border-strong) px-5 py-3 text-sm font-medium tracking-wide text-(--cta) transition hover:border-(--cta) hover:text-(--accent)"
             >
-              Why this
+              Why this exist
             </button>
           </div>
         </div>
@@ -70,14 +70,14 @@ export default function Home() {
 
       {isWhyModalOpen && (
         <div
-          className="fixed inset-0 z-30 flex items-end justify-center bg-black/50 p-3 backdrop-blur-md md:items-center md:p-8"
+          className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 px-3 py-[50px] backdrop-blur-md sm:px-6 md:px-[50px]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="why-this-title"
           onClick={() => setIsWhyModalOpen(false)}
         >
           <article
-            className="relative w-full max-w-lg rounded-2xl bg-(--surface) px-6 py-7 text-left shadow-2xl shadow-black/40 ring-1 ring-(--border) md:px-8 md:py-8"
+            className="relative max-h-[calc(100dvh-100px)] w-full max-w-5xl overflow-y-auto rounded-2xl bg-(--surface) px-6 py-7 text-left shadow-2xl shadow-black/40 ring-1 ring-(--border) md:px-10 md:py-9"
             onClick={(event) => event.stopPropagation()}
           >
             <button
@@ -90,7 +90,7 @@ export default function Home() {
             </button>
 
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-(--cta)">
-              Why this
+              Why this exist
             </p>
             <h2
               id="why-this-title"
@@ -98,16 +98,80 @@ export default function Home() {
             >
               A tiny place for every memory.
             </h2>
-            <div className="mt-5 space-y-4 text-sm leading-7 text-(--body) md:text-base">
+            <div className="mt-5 space-y-4 text-sm leading-6 text-(--body)">
               <p>
-                This idea came from wanting more than photos in a gallery. Some
-                places keep a feeling attached to them: a first walk, a favorite
-                corner, a conversation that stayed.
+                HeartPrint was not made just to store photos or mark places on
+                a map. It was made for{" "}
+                <strong className="font-semibold uppercase text-(--cta)">
+                  her
+                </strong>
+                ,
+                the{" "}
+                <strong className="font-semibold uppercase text-(--cta)">
+                  love of my life
+                </strong>
+                , my{" "}
+                <strong className="font-semibold uppercase text-(--cta)">
+                  Lady Luck
+                </strong>
+                .
               </p>
               <p>
-                HeartPrint is meant to hold those places together, so we can
-                return to the map and remember not just where we went, but what
-                each place became for us.
+                This idea came to me one quiet night, out of nowhere, with one
+                simple thought: I wanted to keep our memories in a way that felt
+                as special as she is. Not just pictures in a gallery, but places
+                with feelings attached to them. A first walk. A favorite corner.
+                A conversation that stayed with us. A moment that may have
+                looked ordinary to the world, but meant everything to us.
+              </p>
+              <p>
+                I wanted to build something that could hold the story of us,
+                from the beginning of our bond to every little step in our
+                journey. Where we went, what we talked about, how it felt, what
+                changed between us, and how each place became a part of our love.
+              </p>
+              <p>
+                One day, when we grow old and come back to these memories, I
+                want every moment to come alive in front of our eyes again. I
+                want us to remember not just where we were, but who we were in
+                that moment, what we felt, how we smiled, how we laughed, and
+                how beautifully it all became ours.
+              </p>
+              <p>
+                Most of all, I made this for{" "}
+                <strong className="font-semibold uppercase text-(--cta)">
+                  her
+                </strong>
+                .
+                To make{" "}
+                <strong className="font-semibold uppercase text-(--cta)">
+                  her
+                </strong>{" "}
+                feel special, loved, excited, and happy like a little child. I
+                love the way{" "}
+                <strong className="font-semibold uppercase text-(--cta)">
+                  she
+                </strong>{" "}
+                giggles, the way her small childish things light up my heart, and
+                the way she makes even simple moments feel magical.
+              </p>
+              <p>
+                I hope that years from now, when she reads these memories, she
+                giggles again. I hope she feels all the love hidden inside every
+                word, every place, and every little detail.
+              </p>
+              <p>
+                HeartPrint is my way of saying that our memories deserve a home.
+                And that home is made only for{" "}
+                <strong className="font-semibold uppercase text-(--cta)">
+                  her
+                </strong>
+                ,
+                my{" "}
+                <strong className="font-semibold uppercase text-(--cta)">
+                  Lady Luck
+                </strong>
+                .
               </p>
             </div>
           </article>
