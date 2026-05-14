@@ -87,6 +87,10 @@ type MapplsGlobal = {
   ) => void;
 };
 
+type MapplsTokenResponse = {
+  accessToken?: string;
+};
+
 declare global {
   interface Window {
     mappls?: MapplsGlobal;
@@ -139,7 +143,12 @@ const PICKING_MARKER_ANCHOR_HEIGHT = 56;
 
 const loadedScripts = new Map<string, Promise<void>>();
 
-function loadScript(id: string, src: string): Promise<void> {
+function removeLoadedScript(id: string) {
+  document.getElementById(id)?.remove();
+  loadedScripts.delete(id);
+}
+
+function loadScript(id: string, src: string, timeoutMs = 10_000): Promise<void> {
   const existing = document.getElementById(id) as HTMLScriptElement | null;
   if (existing) {
     if (existing.src === src) {
@@ -155,12 +164,22 @@ function loadScript(id: string, src: string): Promise<void> {
 
   const p = new Promise<void>((resolve, reject) => {
     const el = document.createElement("script");
+    const timeout = window.setTimeout(() => {
+      loadedScripts.delete(id);
+      el.remove();
+      reject(new Error(`Timed out loading ${id}`));
+    }, timeoutMs);
+
     el.id = id;
     el.src = src;
     el.async = true;
     el.defer = true;
-    el.onload = () => resolve();
+    el.onload = () => {
+      window.clearTimeout(timeout);
+      resolve();
+    };
     el.onerror = () => {
+      window.clearTimeout(timeout);
       loadedScripts.delete(id);
       el.remove();
       reject(new Error(`Failed to load ${id}`));
@@ -402,6 +421,49 @@ function showAllMemories(map: MapplsMap, memories: Memory[]) {
   );
 }
 
+async function fetchMapplsToken() {
+  const tokenResponse = await fetch("/api/mappls/token", { cache: "no-store" });
+  const tokenData = (await tokenResponse.json().catch(() => ({}))) as MapplsTokenResponse;
+
+  return tokenResponse.ok ? tokenData.accessToken?.trim() : undefined;
+}
+
+async function loadMapplsSdk(publicKey: string) {
+  const serverToken = await fetchMapplsToken().catch(() => undefined);
+  const sdkTokens = Array.from(
+    new Set([serverToken, publicKey].filter((token): token is string => Boolean(token))),
+  );
+
+  const sdkCandidates = [
+    ...sdkTokens.map((token) => ({
+      token,
+      src: `https://apis.mappls.com/advancedmaps/api/${encodeURIComponent(token)}/map_sdk?layer=vector&v=3.0`,
+    })),
+    {
+      token: publicKey,
+      src: `https://sdk.mappls.com/map/sdk/web?v=3.0&access_token=${encodeURIComponent(publicKey)}`,
+    },
+  ];
+
+  let lastError: unknown;
+  for (const { src, token } of sdkCandidates) {
+    removeLoadedScript("mappls-web-sdk");
+    window.mappls = undefined;
+
+    try {
+      await loadScript("mappls-web-sdk", src, 8_000);
+      if (window.mappls?.Map) return token;
+      lastError = new Error("Mappls SDK loaded but Map API is unavailable.");
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Unable to load Mappls map.");
+}
+
 // ── Component ──────────────────────────────────────────────────
 
 export function MapplsMemoryMap({
@@ -455,22 +517,17 @@ export function MapplsMemoryMap({
 
     async function init() {
       try {
-        const enc = encodeURIComponent(key);
-        // Load the core Web Maps SDK only (no placePicker plugin needed)
-        await loadScript(
-          "mappls-web-sdk",
-          `https://apis.mappls.com/advancedmaps/api/${enc}/map_sdk?layer=vector&v=3.0&libraries=searchWidget`,
-        );
-        const tokenResponse = await fetch("/api/mappls/token", { cache: "no-store" });
-        const tokenData = (await tokenResponse.json().catch(() => ({}))) as {
-          accessToken?: string;
-        };
+        const pluginToken = await loadMapplsSdk(key);
 
-        if (tokenResponse.ok && tokenData.accessToken) {
-          await loadScript(
+        if (pluginToken) {
+          loadScript(
             "mappls-web-sdk-plugins",
-            `https://apis.mappls.com/advancedmaps/api/${encodeURIComponent(tokenData.accessToken)}/map_sdk_plugins?v=3.0&libraries=pinMarker`,
-          );
+            `https://apis.mappls.com/advancedmaps/api/${encodeURIComponent(pluginToken)}/map_sdk_plugins?v=3.0&libraries=pinMarker`,
+            8_000,
+          ).catch(() => {
+            // The map can still render without the pinMarker plugin; location
+            // search falls back to map clicks when eLoc resolution is unavailable.
+          });
         }
         if (cancelled) return;
 

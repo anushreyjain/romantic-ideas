@@ -174,8 +174,9 @@ export function MemoryMap() {
     await deleteMemory(id);
     setMemories((prev) => prev.filter((m) => m.id !== id));
     setModalMemory(undefined);
-    setActiveMemoryId(undefined);
-    setFocusMemory(undefined);
+    setActiveMemoryId((current) => (current === id ? undefined : current));
+    setFocusMemory((current) => (current?.id === id ? undefined : current));
+    setResetViewKey((key) => key + 1);
   }, []);
 
   // ── Render ────────────────────────────────────────────────────
@@ -247,6 +248,12 @@ export function MemoryMap() {
         {loadError && (
           <div className="absolute left-1/2 top-14 z-30 -translate-x-1/2 rounded-xl bg-[var(--surface)] px-4 py-3 text-sm text-[var(--cta)] shadow-lg ring-1 ring-[var(--border)]">
             {loadError}
+          </div>
+        )}
+
+        {!isLoading && !loadError && memories.length === 0 && (
+          <div className="pointer-events-none absolute left-1/2 top-4 z-30 w-max max-w-[90vw] -translate-x-1/2 rounded-xl bg-[var(--surface)] px-4 py-3 text-center text-sm text-[var(--body)] shadow-lg ring-1 ring-[var(--border)]">
+            No memories in the database yet. Add your first pin to begin.
           </div>
         )}
 

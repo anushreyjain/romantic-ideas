@@ -4,9 +4,8 @@ import { ArrowUpRight } from "lucide-react";
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-start justify-between bg-[var(--bg)] px-8 py-12 md:px-16 md:py-16">
-      <div className="flex items-center gap-3">
-        <img src="/memories/logo/heart-icon.svg" alt="HeartPrint icon" className="h-10 w-10" />
-        <img src="/memories/logo/handwritten_logo.svg" alt="HeartPrint" className="h-8 w-auto" />
+      <div className="flex items-center">
+        <img src="/memories/logo/heart-icon.svg" alt="HeartPrint" className="h-14 w-14" />
       </div>
 
       <div className="max-w-3xl">

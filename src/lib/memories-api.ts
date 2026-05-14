@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured, IMAGES_BUCKET } from "./supabase";
-import { memories as seedMemories, type Memory } from "@/data/memories";
+import type { Memory } from "@/data/memories";
 
 // ── DB row shape (snake_case from Postgres) ──────────────────
 type MemoryRow = {
@@ -33,6 +33,12 @@ function rowToMemory(row: MemoryRow): Memory {
 // ── LocalStorage fallback helpers ────────────────────────────
 const LS_KEY = "rt-extra-memories";
 
+function sortMemories(memories: Memory[]): Memory[] {
+  return [...memories].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+}
+
 function lsLoad(): Memory[] {
   try {
     const raw = localStorage.getItem(LS_KEY);
@@ -47,10 +53,7 @@ function lsSave(memories: Memory[]) {
 // ── Read ─────────────────────────────────────────────────────
 export async function getMemories(): Promise<Memory[]> {
   if (!isSupabaseConfigured) {
-    // Fall back to seed data + anything saved locally
-    return [...seedMemories, ...lsLoad()].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+    return sortMemories(lsLoad());
   }
 
   const { data, error } = await supabase!
@@ -59,6 +62,7 @@ export async function getMemories(): Promise<Memory[]> {
     .order("date", { ascending: false });
 
   if (error) throw new Error(error.message);
+
   return (data as MemoryRow[]).map(rowToMemory);
 }
 
@@ -76,6 +80,8 @@ export async function addMemory(memory: Omit<Memory, "id">): Promise<Memory> {
       title: memory.title,
       date: memory.date,
       location_name: memory.locationName,
+      mappls_pin: memory.mapplsPin ?? null,
+      eloc: memory.eLoc ?? memory.mapplsPin ?? null,
       longitude: memory.coordinates.longitude,
       latitude: memory.coordinates.latitude,
       story: memory.story,
@@ -95,7 +101,13 @@ export async function deleteMemory(id: string): Promise<void> {
     return;
   }
 
-  const { error } = await supabase!.from("memories").delete().eq("id", id);
+  const { error } = await supabase!
+    .from("memories")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .single();
+
   if (error) throw new Error(error.message);
 }
 

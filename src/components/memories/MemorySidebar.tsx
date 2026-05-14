@@ -32,9 +32,7 @@ export function MemorySidebar({
 
       {/* Header */}
       <div className="px-6 pt-3 pb-4 md:pt-4">
-        {/* Text Logo */}
-        <img src="/memories/logo/handwritten_logo.svg" alt="HeartPrint" className="h-10 w-auto" />
-        {/* Heart icon available at /memories/logo/heart-icon.svg */}
+        <img src="/memories/logo/heart-icon.svg" alt="HeartPrint" className="h-12 w-12" />
 
         {/* Heading + add + theme toggle */}
         <div className="mt-4 flex items-center justify-between gap-2">
