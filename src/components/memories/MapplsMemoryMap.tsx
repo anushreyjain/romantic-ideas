@@ -191,6 +191,10 @@ function loadScript(id: string, src: string, timeoutMs = 10_000): Promise<void> 
   return p;
 }
 
+function getMapplsGlobal() {
+  return window.mappls;
+}
+
 // ── Helpers ────────────────────────────────────────────────────
 
 function markerLatLng(marker: MapplsMarker): LatLng | null {
@@ -452,7 +456,7 @@ async function loadMapplsSdk(publicKey: string) {
 
     try {
       await loadScript("mappls-web-sdk", src, 8_000);
-      if (window.mappls?.Map) return token;
+      if (getMapplsGlobal()?.Map) return token;
       lastError = new Error("Mappls SDK loaded but Map API is unavailable.");
     } catch (error) {
       lastError = error;
@@ -765,17 +769,17 @@ export function MapplsMemoryMap({
 
   // ── Render ────────────────────────────────────────────────────
   return (
-    <div className="relative h-full w-full bg-[var(--surface2)]">
+    <div className="relative h-full w-full bg-(--surface2)">
       <div id={mapId} className="h-full w-full" />
 
       {/* Loading / error overlay */}
       {(!isMapReady || mapError) && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[var(--bg)]/90 p-6 text-center backdrop-blur-sm">
-          <div className="max-w-sm rounded-2xl bg-[var(--surface)] p-5 shadow-2xl ring-1 ring-[var(--border)]">
-            <p className="text-sm font-semibold text-[var(--heading)]">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-(--bg)/90 p-6 text-center backdrop-blur-sm">
+          <div className="max-w-sm rounded-2xl bg-(--surface) p-5 shadow-2xl ring-1 ring-(--border)">
+            <p className="text-sm font-semibold text-(--heading)">
               {mapError ? "Map unavailable" : "Loading map…"}
             </p>
-            <p className="mt-2 text-xs leading-5 text-[var(--body)]/60">
+            <p className="mt-2 text-xs leading-5 text-(--body)/60">
               {mapError ?? "Preparing the map and memory pins…"}
             </p>
           </div>
