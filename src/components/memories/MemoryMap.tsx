@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Memory } from "@/data/memories";
 import { getMemories, addMemory, deleteMemory } from "@/lib/memories-api";
-import { isSupabaseConfigured } from "@/lib/supabase";
 import { AddMemoryModal } from "./AddMemoryModal";
 import {
   LocationPickerPanel,
@@ -14,12 +13,14 @@ import { MemoryModal } from "./MemoryModal";
 import { MemorySidebar } from "./MemorySidebar";
 
 type PickedPin = { lat: number; lng: number };
+const EMPTY_STATE_HINT_TIMEOUT_MS = 4500;
 
 export function MemoryMap() {
   // ── Data ──────────────────────────────────────────────────────
   const [memories, setMemories] = useState<Memory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string>();
+  const [showEmptyStateHint, setShowEmptyStateHint] = useState(false);
 
   // ── Map selection state ───────────────────────────────────────
   const [activeMemoryId, setActiveMemoryId] = useState<string>();
@@ -57,6 +58,21 @@ export function MemoryMap() {
       .catch((e: Error) => setLoadError(e.message))
       .finally(() => setIsLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (isLoading || loadError || memories.length > 0) {
+      setShowEmptyStateHint(false);
+      return;
+    }
+
+    setShowEmptyStateHint(true);
+    const timeout = window.setTimeout(
+      () => setShowEmptyStateHint(false),
+      EMPTY_STATE_HINT_TIMEOUT_MS,
+    );
+
+    return () => window.clearTimeout(timeout);
+  }, [isLoading, loadError, memories.length]);
 
   // ── Memory selection ──────────────────────────────────────────
   const focusMemoryOnly = useCallback((memory: Memory) => {
@@ -138,6 +154,7 @@ export function MemoryMap() {
   }, []);
 
   const startAddPin = useCallback(() => {
+    setShowEmptyStateHint(false);
     setIsPickingLocation(true);
     setSearchedLocation(null);
     setPickedPin(null);
@@ -181,7 +198,7 @@ export function MemoryMap() {
 
   // ── Render ────────────────────────────────────────────────────
   return (
-    <main className="flex h-dvh overflow-hidden bg-[var(--bg)] text-[var(--body)]">
+    <main className="flex h-dvh overflow-hidden bg-(--bg) text-(--body)">
       {/* Left sidebar — desktop */}
       <div className="hidden md:flex md:flex-col">
         <MemorySidebar
@@ -198,10 +215,10 @@ export function MemoryMap() {
       <div className="relative flex-1">
         {/* Loading spinner */}
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg)]">
+          <div className="absolute inset-0 flex items-center justify-center bg-(--bg)">
             <div className="flex flex-col items-center gap-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--border)] border-t-[var(--cta)]" />
-              <p className="text-xs text-[var(--body)]/50">Loading memories…</p>
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-(--border) border-t-(--cta)" />
+              <p className="text-xs text-(--body)/50">Loading memories…</p>
             </div>
           </div>
         )}
@@ -236,23 +253,15 @@ export function MemoryMap() {
           />
         )}
 
-        {/* Demo-mode banner */}
-        {!isSupabaseConfigured && (
-          <div className="absolute left-1/2 top-4 z-30 w-max max-w-[90vw] -translate-x-1/2 rounded-xl bg-[var(--surface)] px-4 py-2.5 text-xs text-[var(--body)] shadow-lg ring-1 ring-[var(--border)]">
-            <span className="font-semibold text-[var(--cta)]">Demo mode</span>
-            {" — "}add your Supabase keys to save memories permanently.
-          </div>
-        )}
-
         {/* Error toast */}
         {loadError && (
-          <div className="absolute left-1/2 top-14 z-30 -translate-x-1/2 rounded-xl bg-[var(--surface)] px-4 py-3 text-sm text-[var(--cta)] shadow-lg ring-1 ring-[var(--border)]">
+          <div className="absolute left-1/2 top-14 z-30 -translate-x-1/2 rounded-xl bg-(--surface) px-4 py-3 text-sm text-(--cta) shadow-lg ring-1 ring-(--border)">
             {loadError}
           </div>
         )}
 
-        {!isLoading && !loadError && memories.length === 0 && (
-          <div className="pointer-events-none absolute left-1/2 top-4 z-30 w-max max-w-[90vw] -translate-x-1/2 rounded-xl bg-[var(--surface)] px-4 py-3 text-center text-sm text-[var(--body)] shadow-lg ring-1 ring-[var(--border)]">
+        {showEmptyStateHint && !isPickingLocation && (
+          <div className="pointer-events-none absolute left-1/2 top-4 z-30 w-max max-w-[90vw] -translate-x-1/2 rounded-xl bg-(--surface) px-4 py-3 text-center text-sm text-(--body) shadow-lg ring-1 ring-(--border)">
             No memories in the database yet. Add your first pin to begin.
           </div>
         )}

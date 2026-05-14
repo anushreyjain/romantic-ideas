@@ -1,4 +1,7 @@
-import { Plus, RotateCcw } from "lucide-react";
+"use client";
+
+import { LogOut, Plus, RotateCcw } from "lucide-react";
+import { useState } from "react";
 import type { Memory } from "@/data/memories";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -25,6 +28,21 @@ export function MemorySidebar({
   onResetView,
   onStartAddPin,
 }: MemorySidebarProps) {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Logout failed");
+
+      window.location.assign("/");
+    } catch {
+      setIsLoggingOut(false);
+    }
+  }
+
   return (
     <aside className="pointer-events-auto z-10 flex h-[48vh] w-full flex-col rounded-t-3xl bg-[var(--bg)] transition-all duration-300 md:h-full md:w-80 md:rounded-none md:border-r md:border-[var(--border)]">
       {/* Mobile drag handle */}
@@ -34,13 +52,12 @@ export function MemorySidebar({
       <div className="px-6 pt-3 pb-4 md:pt-4">
         <img src="/memories/logo/heart-icon.svg" alt="HeartPrint" className="h-12 w-12" />
 
-        {/* Heading + add + theme toggle */}
+        {/* Heading + map actions */}
         <div className="mt-4 flex items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--heading)]">
             Our Places
           </h1>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <button
               type="button"
               onClick={onResetView}
@@ -133,10 +150,23 @@ export function MemorySidebar({
       </div>
 
       {/* Footer */}
-      <div className="border-t border-[var(--border)] px-6 py-3">
-        <p className="text-[11px] text-[var(--body)]/40">
+      <div className="border-t border-(--border) px-6 py-4">
+        <p className="text-[11px] text-(--body)/40">
           {isLoading ? "Loading…" : `${memories.length} memories · tap a pin to open its story`}
         </p>
+
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex items-center gap-2 rounded-full border border-(--border) bg-(--surface2) px-3 py-2 text-xs font-medium text-(--body) transition hover:border-(--border-strong) hover:text-(--heading) disabled:pointer-events-none disabled:opacity-50"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            {isLoggingOut ? "Logging out…" : "Logout"}
+          </button>
+        </div>
       </div>
     </aside>
   );

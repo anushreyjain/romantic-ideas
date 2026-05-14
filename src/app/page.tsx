@@ -23,7 +23,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-(--bg) px-5 py-10 md:px-8">
-      <section className="flex w-full max-w-4xl flex-col items-center rounded-4xl border border-(--border-strong) bg-(--surface)/70 px-6 py-10 text-center shadow-2xl shadow-(--cta)/10 backdrop-blur md:px-12 md:py-14">
+      <section className="flex w-full max-w-4xl flex-col items-center rounded-4xl border border-(--border-strong) bg-(--surface)/70 px-6 py-10 text-center shadow-lg shadow-(--cta)/5 backdrop-blur md:px-12 md:py-14">
         <div className="flex items-center justify-center">
           <Image
             src="/memories/logo/heart-icon.svg"
@@ -46,7 +46,7 @@ export default function Home() {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href="/memories-map"
+              href="/auth"
               className="inline-flex items-center gap-2 rounded-full bg-(--cta) px-5 py-3 text-sm font-medium tracking-wide text-white transition hover:bg-(--accent)"
             >
               Open Memories Map

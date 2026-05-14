@@ -1,132 +1,51 @@
-import { supabase, isSupabaseConfigured, IMAGES_BUCKET } from "./supabase";
 import type { Memory } from "@/data/memories";
 
-// ── DB row shape (snake_case from Postgres) ──────────────────
-type MemoryRow = {
-  id: string;
-  title: string;
-  date: string;
-  location_name: string;
-  mappls_pin?: string | null;
-  eloc?: string | null;
-  longitude: number;
-  latitude: number;
-  story: string;
-  image_url: string | null;
-  created_at: string;
+type ApiError = {
+  error?: string;
 };
 
-function rowToMemory(row: MemoryRow): Memory {
-  return {
-    id: row.id,
-    title: row.title,
-    date: row.date,
-    locationName: row.location_name,
-    coordinates: { longitude: row.longitude, latitude: row.latitude },
-    mapplsPin: row.mappls_pin ?? undefined,
-    eLoc: row.eloc ?? row.mappls_pin ?? undefined,
-    story: row.story,
-    image: row.image_url ?? undefined,
-  };
+async function parseApiError(response: Response) {
+  const data = (await response.json().catch(() => ({}))) as ApiError;
+  return data.error || "Something went wrong. Try again.";
 }
 
-// ── LocalStorage fallback helpers ────────────────────────────
-const LS_KEY = "rt-extra-memories";
-
-function sortMemories(memories: Memory[]): Memory[] {
-  return [...memories].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
-}
-
-function lsLoad(): Memory[] {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    return raw ? (JSON.parse(raw) as Memory[]) : [];
-  } catch { return []; }
-}
-
-function lsSave(memories: Memory[]) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(memories)); } catch { /* ignore */ }
+async function fetchJson<T>(input: RequestInfo | URL, init?: RequestInit) {
+  const response = await fetch(input, init);
+  if (!response.ok) {
+    throw new Error(await parseApiError(response));
+  }
+  return (await response.json()) as T;
 }
 
 // ── Read ─────────────────────────────────────────────────────
 export async function getMemories(): Promise<Memory[]> {
-  if (!isSupabaseConfigured) {
-    return sortMemories(lsLoad());
-  }
-
-  const { data, error } = await supabase!
-    .from("memories")
-    .select("*")
-    .order("date", { ascending: false });
-
-  if (error) throw new Error(error.message);
-
-  return (data as MemoryRow[]).map(rowToMemory);
+  return fetchJson<Memory[]>("/api/memories", { cache: "no-store" });
 }
 
 // ── Create ───────────────────────────────────────────────────
 export async function addMemory(memory: Omit<Memory, "id">): Promise<Memory> {
-  if (!isSupabaseConfigured) {
-    const newMemory: Memory = { ...memory, id: `local-${Date.now()}` };
-    lsSave([...lsLoad(), newMemory]);
-    return newMemory;
-  }
-
-  const { data, error } = await supabase!
-    .from("memories")
-    .insert({
-      title: memory.title,
-      date: memory.date,
-      location_name: memory.locationName,
-      mappls_pin: memory.mapplsPin ?? null,
-      eloc: memory.eLoc ?? memory.mapplsPin ?? null,
-      longitude: memory.coordinates.longitude,
-      latitude: memory.coordinates.latitude,
-      story: memory.story,
-      image_url: memory.image ?? null,
-    })
-    .select()
-    .single();
-
-  if (error) throw new Error(error.message);
-  return rowToMemory(data as MemoryRow);
+  return fetchJson<Memory>("/api/memories", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(memory),
+  });
 }
 
 // ── Delete ───────────────────────────────────────────────────
 export async function deleteMemory(id: string): Promise<void> {
-  if (!isSupabaseConfigured) {
-    lsSave(lsLoad().filter((m) => m.id !== id));
-    return;
-  }
-
-  const { error } = await supabase!
-    .from("memories")
-    .delete()
-    .eq("id", id)
-    .select("id")
-    .single();
-
-  if (error) throw new Error(error.message);
+  await fetchJson<{ ok: true }>(`/api/memories/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }
 
 // ── Image upload ─────────────────────────────────────────────
 export async function uploadImage(file: File): Promise<string> {
-  if (!isSupabaseConfigured) {
-    // Return a local object URL as a best-effort fallback
-    return URL.createObjectURL(file);
-  }
+  const formData = new FormData();
+  formData.append("file", file);
 
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-  const { error } = await supabase!.storage
-    .from(IMAGES_BUCKET)
-    .upload(path, file, { upsert: false });
-
-  if (error) throw new Error(error.message);
-
-  const { data } = supabase!.storage.from(IMAGES_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  const data = await fetchJson<{ url: string }>("/api/memories/images", {
+    method: "POST",
+    body: formData,
+  });
+  return data.url;
 }
